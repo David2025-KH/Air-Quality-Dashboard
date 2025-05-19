@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Indoor Air Quality Dashboard</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css"/>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    td {
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    td:first-child {
+      font-weight: bold;
+      background-color: #f0f0f0;
+      width: 40%;
+    }
+
+    td:last-child {
+      width: 60%;
+    }
+
+    #airQuality {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Air Quality Measurement</h1>
+
+  <div class="section">
+    <h2>Latest Reading</h2>
+    <div id="dataContainer">Loading latest data...</div>
+  </div>
+
+  <div class="section">
+    <h2>Historical Data</h2>
+    <table id="airQuality" class="display">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Sensor Read</th>
+          <th>Standard PM1,0 ug/m3</th>
+          <th>Standard PM2,5 ug/m3</th>
+          <th>Standard PM10 ug/m3</th>
+          <th>Environment PM1,0 ug/m3</th>
+          <th>Environment PM2,5 ug/m3</th>
+          <th>Environment PM10 ug/m3</th>
+          <th>Particles 0,3um</th>
+          <th>Particles 0,5um</th>
+          <th>Particles 1,0um</th>
+          <th>Particles 2,5um</th>
+          <th>Particles 5,0um</th>
+          <th>Particles 10um</th>
+          <th>AIQ PM2,5</th>
+          <th>AIQ PM10</th>
+          <th>Temperature C</th>
+          <th>Humidity %</th>
+          <th>Air Pressure KPa</th>
+          <th>O2 %</th>
+          <th>CO2 ppm</th>
+          <th>VOCindex</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+
+  <script>
+    // Fetch latest row and display it vertically
+    function fetchLatest() {
+      fetch('https://script.google.com/macros/s/AKfycbwmqmeW7MlAuVGsWZAFl3RFRSlkpAwCGKccRMOEpCuwO9J55sRcVgcpO2J1WDQP90D5/exec')
+        .then(response => response.json())
+        .then(data => {
+          const latest = data.data[data.data.length - 1];
+          const container = document.getElementById("dataContainer");
+          let table = "<table>";
+          for (let key in latest) {
+            let value = latest[key];
+
+            if (key.toLowerCase().includes('date')) {
+              value = moment.utc(value).local().format('YYYY-MM-DD');
+            } else if (key.toLowerCase().includes('time')) {
+              value = moment.utc(value).local().format('HH:mm:ss');
+            }
+
+            table += `<tr><td>${key}</td><td>${value}</td></tr>`;
+          }
+          table += "</table>";
+          container.innerHTML = table;
+        })
+        .catch(err => {
+          document.getElementById("dataContainer").innerHTML = "Failed to load data.";
+          console.error(err);
+        });
+    }
+
+    // Load latest once, then refresh every 5s
+    fetchLatest();
+    setInterval(fetchLatest, 5000);
+
+    // Initialize DataTable
+    var table = new DataTable('#airQuality', {
+      ajax: 'https://script.google.com/macros/s/AKfycbwmqmeW7MlAuVGsWZAFl3RFRSlkpAwCGKccRMOEpCuwO9J55sRcVgcpO2J1WDQP90D5/exec',
+      columns: [
+        { data: 'Data', render: d => moment.utc(d).local().format('YYYY-MM-DD') },
+        { data: 'Time', render: d => moment.utc(d).local().format('HH:mm:ss') },
+        { data: 'Sensor Read' },
+        { data: 'Standard PM1,0 ug/m3' },
+        { data: 'Standard PM2,5 ug/m3' },
+        { data: 'Standard PM10 ug/m3' },
+        { data: 'Environment PM1,0 ug/m3' },
+        { data: 'Environment PM2,5 ug/m3' },
+        { data: 'Environment PM10 ug/m3' },
+        { data: 'Particles 0,3um' },
+        { data: 'Particles 0,5um' },
+        { data: 'Particles 1,0um' },
+        { data: 'Particles 2,5um' },
+        { data: 'Particles 5,0um' },
+        { data: 'Particles 10um' },
+        { data: 'AIQ PM2,5' },
+        { data: 'AIQ PM10' },
+        { data: 'Temperature C' },
+        { data: 'Humidity %' },
+        { data: 'Air Pressure KPa' },
+        { data: 'O2 %' },
+        { data: 'CO2 ppm' },
+        { data: 'VOCindex' }
+      ]
+    });
+
+    // Refresh historical table every 5s
+    setInterval(() => table.ajax.reload(null, false), 5000);
+  </script>
+</body>
+</html>

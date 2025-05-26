@@ -1,115 +1,239 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html> 
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Indoor Air Quality Dashboard</title>
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css"/>
-
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
       padding: 20px;
+      background-color: #f4f6f8;
     }
-
-    h1 {
+    h1, h2 { text-align: center; color: #333; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
       text-align: center;
+      transition: transform 0.2s;
     }
-
-    .section {
-      margin-bottom: 40px;
+    .card:hover { transform: translateY(-5px); }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: #777;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .card p {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111;
     }
-
-    td {
-      padding: 10px;
-      border: 1px solid #ccc;
+    table.dataTable {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-
-    td:first-child {
-      font-weight: bold;
-      background-color: #f0f0f0;
-      width: 40%;
-    }
-
-    td:last-child {
-      width: 60%;
-    }
-
-    #airQuality {
-      width: 100%;
-    }
+    .section { margin-top: 40px; }
+    .group-section { margin-bottom: 40px; }
   </style>
 </head>
 <body>
-  <h1>Air Quality Measurement</h1>
+  <h1>Indoor Air Quality Dashboard</h1>
 
   <div class="section">
-    <h2>Latest Reading</h2>
-    <div id="dataContainer">Loading latest data...</div>
+    <h2>Latest Readings 📊📡🧪</h2>
+    <div id="dataContainer">Loading...</div>
   </div>
 
+  <!-- New toggle button for historical data -->
   <div class="section">
-    <h2>Historical Data</h2>
-    <table id="airQuality" class="display">
+    <button id="toggleHistoricalBtn" style="display:block; margin: 0 auto 20px; padding:10px 20px; font-size:16px;">
+      Recorded Historical 📜
+    </button>
+  </div>
+
+  <!-- Historical section hidden by default -->
+  <div id="historicalSection" class="section" style="display:none;">
+    <h2>Historical Data 📈</h2>
+    <table id="airQuality" class="display" style="width:100%">
       <thead>
         <tr>
           <th>Date</th>
           <th>Time</th>
           <th>Sensor Read</th>
-          <th>Standard PM1,0 ug/m3</th>
-          <th>Standard PM2,5 ug/m3</th>
-          <th>Standard PM10 ug/m3</th>
-          <th>Environment PM1,0 ug/m3</th>
-          <th>Environment PM2,5 ug/m3</th>
-          <th>Environment PM10 ug/m3</th>
-          <th>Particles 0,3um</th>
-          <th>Particles 0,5um</th>
-          <th>Particles 1,0um</th>
-          <th>Particles 2,5um</th>
-          <th>Particles 5,0um</th>
-          <th>Particles 10um</th>
-          <th>AIQ PM2,5</th>
+          <th>Standard PM1.0 (µg/m³)</th>
+          <th>Standard PM2.5 (µg/m³)</th>
+          <th>Standard PM10 (µg/m³)</th>
+          <th>Environment PM1.0 (µg/m³)</th>
+          <th>Environment PM2.5 (µg/m³)</th>
+          <th>Environment PM10 (µg/m³)</th>
+          <th>Particles 0.3µm</th>
+          <th>Particles 0.5µm</th>
+          <th>Particles 1.0µm</th>
+          <th>Particles 2.5µm</th>
+          <th>Particles 5.0µm</th>
+          <th>Particles 10µm</th>
+          <th>AIQ PM2.5</th>
           <th>AIQ PM10</th>
-          <th>Temperature C</th>
-          <th>Humidity %</th>
-          <th>Air Pressure KPa</th>
-          <th>O2 %</th>
-          <th>CO2 ppm</th>
-          <th>VOCindex</th>
+          <th>Temperature (°C)</th>
+          <th>Humidity (%)</th>
+          <th>Air Pressure (Pa)</th>
+          <th>O₂ (%)</th>
+          <th>CO₂ (ppm)</th>
+          <th>VOC Index</th>
         </tr>
       </thead>
     </table>
   </div>
 
-  <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
-  <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+  <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
 
   <script>
-    // Fetch latest row and display it vertically
+    const labelMap = {
+      'Date': 'Date 📅',
+      'Time': 'Time ⏰',
+      'Sensor Read': 'Sensor Read 🔍',
+      'Standard PM1.0': 'Standard PM1.0 🧪',
+      'Standard PM2.5': 'Standard PM2.5 🧪',
+      'Standard PM10': 'Standard PM10 🧪',
+      'Environment PM1.0': 'Environment PM1.0 🌍',
+      'Environment PM2.5': 'Environment PM2.5 🌍',
+      'Environment PM10': 'Environment PM10 🌍',
+      'Particles 0.3µm': 'Particles 0.3µm 🔬',
+      'Particles 0.5µm': 'Particles 0.5µm 🔬',
+      'Particles 1.0µm': 'Particles 1.0µm 🔬',
+      'Particles 2.5µm': 'Particles 2.5µm 🔬',
+      'Particles 5.0µm': 'Particles 5.0µm 🔬',
+      'Particles 10µm': 'Particles 10µm 🔬',
+      'AIQ PM2.5': 'AIQ PM2.5 📊',
+      'AIQ PM10': 'AIQ PM10 📊',
+      'Temperature': 'Temperature 🌡️',
+      'Humidity': 'Humidity 💧',
+      'Air Pressure': 'Air Pressure 💨',
+      'CO₂': 'CO₂ 🫧️',
+      'CO₂ (ppm)': 'CO₂ 🫧️',
+      'O₂': 'O₂ 🫁',
+      'VOC Index': 'VOC Index 🟤',
+    };
+
+    function getUnit(key) {
+      const plainUnits = {
+        'Standard PM1.0': 'µg/m³',
+        'Standard PM2.5': 'µg/m³',
+        'Standard PM10': 'µg/m³',
+        'Environment PM1.0': 'µg/m³',
+        'Environment PM2.5': 'µg/m³',
+        'Environment PM10': 'µg/m³',
+        'Particles 0.3µm': 'pcs',
+        'Particles 0.5µm': 'pcs',
+        'Particles 1.0µm': 'pcs',
+        'Particles 2.5µm': 'pcs',
+        'Particles 5.0µm': 'pcs',
+        'Particles 10µm': 'pcs',
+        'Temperature': '°C',
+        'Humidity': '%',
+        'Air Pressure': 'Pa',
+        'O₂': '%',
+        'CO₂': 'ppm',
+        'VOC Index': 'index',
+        'AIQ PM2.5': 'score',
+        'AIQ PM10': 'score'
+      };
+
+      const strippedKey = key.replace(/\s*\(.*?\)/g, '').trim();
+      if (plainUnits.hasOwnProperty(strippedKey)) {
+        return plainUnits[strippedKey];
+      }
+      for (let match in plainUnits) {
+        if (strippedKey.includes(match)) return plainUnits[match];
+      }
+      return '';
+    }
+
+    function getLabel(key) {
+      if (labelMap[key]) return labelMap[key];
+      const strippedKey = key.replace(/\s*\(.*?\)/g, '').trim();
+      if (labelMap[strippedKey]) return labelMap[strippedKey];
+      for (let match in labelMap) {
+        if (key.toLowerCase().includes(match.toLowerCase())) {
+          return labelMap[match];
+        }
+      }
+      return strippedKey;
+    }
+
     function fetchLatest() {
-      fetch('https://script.google.com/macros/s/AKfycbwmqmeW7MlAuVGsWZAFl3RFRSlkpAwCGKccRMOEpCuwO9J55sRcVgcpO2J1WDQP90D5/exec')
+      fetch('https://script.google.com/macros/s/AKfycbzho2eCKvrp6oHmJ-3_w49UiLSPHM5Bt3LqeKHdKF-MDJ4XgHHqASEyGVtn4m8QF473/exec')
         .then(response => response.json())
         .then(data => {
           const latest = data.data[data.data.length - 1];
           const container = document.getElementById("dataContainer");
-          let table = "<table>";
-          for (let key in latest) {
-            let value = latest[key];
+          container.innerHTML = '';
 
-            if (key.toLowerCase().includes('date')) {
-              value = moment.utc(value).local().format('YYYY-MM-DD');
-            } else if (key.toLowerCase().includes('time')) {
-              value = moment.utc(value).local().format('HH:mm:ss');
-            }
+          const groups = {
+            group0: ['Date', 'Time', 'Sensor Read', 'Timestamp'],
+            group1: ['Standard PM1.0', 'Standard PM2.5', 'Standard PM10'],
+            group2: ['Environment PM1.0', 'Environment PM2.5', 'Environment PM10'],
+            group3: ['Particles 0.3µm', 'Particles 0.5µm', 'Particles 1.0µm', 'Particles 2.5µm', 'Particles 5.0µm', 'Particles 10µm'],
+            group4: ['AIQ PM2.5', 'AIQ PM10'],
+            group5: ['Temperature', 'Humidity', 'Air Pressure'],
+            group6: ['O₂', 'CO₂', 'VOC Index']
+          };
 
-            table += `<tr><td>${key}</td><td>${value}</td></tr>`;
+          for (let group in groups) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'group-section grid';
+            
+            groups[group].forEach(key => {
+              let matchKey = Object.keys(latest).find(k => 
+                k.replace(/\s*\(.*?\)/g, '').trim().toLowerCase() === key.toLowerCase() ||
+                k.toLowerCase().includes(key.toLowerCase())
+              );
+
+              if (!matchKey) return;
+
+              let rawValue = latest[matchKey];
+              let value = (rawValue === null || rawValue === undefined || rawValue === '') ? 'N/A' : rawValue;
+              let label = getLabel(matchKey);
+
+              if (moment.utc(value).isValid()) {
+                if (matchKey.toLowerCase().includes('date')) {
+                  value = moment.utc(value).local().format('YYYY-MM-DD');
+                } else if (matchKey.toLowerCase().includes('time')) {
+                  value = moment.utc(value).local().format('HH:mm:ss');
+                } else if (matchKey.toLowerCase().includes('timestamp')) {
+                  value = moment.utc(value).local().format('YYYY-MM-DD HH:mm:ss');
+                }
+              }
+
+              if (value !== 'N/A') {
+                const unit = getUnit(matchKey);
+                if (unit) value += ' ' + unit;
+              }
+
+              const card = document.createElement('div');
+              card.className = 'card';
+              card.innerHTML = `<h3>${label}</h3><p>${value}</p>`;
+              groupDiv.appendChild(card);
+            });
+
+            container.appendChild(groupDiv);
           }
-          table += "</table>";
-          container.innerHTML = table;
         })
         .catch(err => {
           document.getElementById("dataContainer").innerHTML = "Failed to load data.";
@@ -117,42 +241,50 @@
         });
     }
 
-    // Load latest once, then refresh every 5s
     fetchLatest();
     setInterval(fetchLatest, 5000);
 
-    // Initialize DataTable
-    var table = new DataTable('#airQuality', {
-      ajax: 'https://script.google.com/macros/s/AKfycbwmqmeW7MlAuVGsWZAFl3RFRSlkpAwCGKccRMOEpCuwO9J55sRcVgcpO2J1WDQP90D5/exec',
+    const table = new DataTable('#airQuality', {
+      ajax: {
+        url: 'https://script.google.com/macros/s/AKfycbzho2eCKvrp6oHmJ-3_w49UiLSPHM5Bt3LqeKHdKF-MDJ4XgHHqASEyGVtn4m8QF473/exec',
+        dataSrc: json => json.data || json
+      },
       columns: [
-        { data: 'Data', render: d => moment.utc(d).local().format('YYYY-MM-DD') },
-        { data: 'Time', render: d => moment.utc(d).local().format('HH:mm:ss') },
-        { data: 'Sensor Read' },
-        { data: 'Standard PM1,0 ug/m3' },
-        { data: 'Standard PM2,5 ug/m3' },
-        { data: 'Standard PM10 ug/m3' },
-        { data: 'Environment PM1,0 ug/m3' },
-        { data: 'Environment PM2,5 ug/m3' },
-        { data: 'Environment PM10 ug/m3' },
-        { data: 'Particles 0,3um' },
-        { data: 'Particles 0,5um' },
-        { data: 'Particles 1,0um' },
-        { data: 'Particles 2,5um' },
-        { data: 'Particles 5,0um' },
-        { data: 'Particles 10um' },
-        { data: 'AIQ PM2,5' },
-        { data: 'AIQ PM10' },
-        { data: 'Temperature C' },
-        { data: 'Humidity %' },
-        { data: 'Air Pressure KPa' },
-        { data: 'O2 %' },
-        { data: 'CO2 ppm' },
-        { data: 'VOCindex' }
+        { data: row => moment.utc(row['Date']).local().format('YYYY-MM-DD') },
+        { data: row => moment.utc(row['Time']).local().format('HH:mm:ss') },
+        { data: row => row['Sensor Read'] },
+        { data: row => row['Standard PM1.0 (µg/m³)'] },
+        { data: row => row['Standard PM2.5 (µg/m³)'] },
+        { data: row => row['Standard PM10 (µg/m³)'] },
+        { data: row => row['Environment PM1.0 (µg/m³)'] },
+        { data: row => row['Environment PM2.5 (µg/m³)'] },
+        { data: row => row['Environment PM10 (µg/m³)'] },
+        { data: row => row['Particles 0.3µm'] },
+        { data: row => row['Particles 0.5µm'] },
+        { data: row => row['Particles 1.0µm'] },
+        { data: row => row['Particles 2.5µm'] },
+        { data: row => row['Particles 5.0µm'] },
+        { data: row => row['Particles 10µm'] },
+        { data: row => row['AIQ PM2.5'] },
+        { data: row => row['AIQ PM10'] },
+        { data: row => row['Temperature (°C)'] },
+        { data: row => row['Humidity (%)'] },
+        { data: row => row['Air Pressure (Pa)'] },
+        { data: row => row['O₂ (%)'] },
+        { data: row => row['CO₂ (ppm)'] },
+        { data: row => row['VOC Index'] }
       ]
     });
 
-    // Refresh historical table every 5s
     setInterval(() => table.ajax.reload(null, false), 5000);
+
+    // Toggle Historical Section
+    document.getElementById("toggleHistoricalBtn").addEventListener("click", function () {
+      const section = document.getElementById("historicalSection");
+      const isVisible = section.style.display !== "none";
+      section.style.display = isVisible ? "none" : "block";
+      this.textContent = isVisible ? "Recorded Historical 📜" : "Hide Historical 📜";
+    });
   </script>
 </body>
 </html>

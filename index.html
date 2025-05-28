@@ -40,6 +40,12 @@
       font-weight: 600;
       color: #111;
     }
+    .card small {
+      display: block;
+      margin-top: 8px;
+      color: #555;
+      font-size: 14px;
+    }
     table.dataTable {
       background: #fff;
       border-radius: 12px;
@@ -47,7 +53,21 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .section { margin-top: 40px; }
-    .group-section { margin-bottom: 40px; }
+    .group-section { margin-top: 20px; }
+
+    .group-wrapper {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+    .group-wrapper h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #444;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -58,14 +78,12 @@
     <div id="dataContainer">Loading...</div>
   </div>
 
-  <!-- New toggle button for historical data -->
   <div class="section">
     <button id="toggleHistoricalBtn" style="display:block; margin: 0 auto 20px; padding:10px 20px; font-size:16px;">
       Recorded Historical 📜
     </button>
   </div>
 
-  <!-- Historical section hidden by default -->
   <div id="historicalSection" class="section" style="display:none;">
     <h2>Historical Data 📈</h2>
     <table id="airQuality" class="display" style="width:100%">
@@ -177,6 +195,81 @@
       return strippedKey;
     }
 
+    function getColorAndComment(key, value) {
+      let numeric = parseFloat(value);
+      let color = '#111';
+      let comment = '';
+
+      if (isNaN(numeric)) return { color, comment };
+
+      switch (key) {
+        case 'Standard PM2.5':
+        case 'Environment PM2.5':
+        case 'AIQ PM2.5':
+          if (numeric <= 12) {
+            color = '#2e7d32'; comment = 'Excellent';
+          } else if (numeric <= 35.4) {
+            color = '#558b2f'; comment = 'Good';
+          } else if (numeric <= 55.4) {
+            color = '#f9a825'; comment = 'Moderate';
+          } else if (numeric <= 150.4) {
+            color = '#ef6c00'; comment = 'Unhealthy';
+          } else {
+            color = '#b71c1c'; comment = 'Very Unhealthy';
+          }
+          break;
+
+        case 'CO₂':
+        case 'CO₂ (ppm)':
+          if (numeric <= 600) {
+            color = '#2e7d32'; comment = 'Excellent';
+          } else if (numeric <= 1000) {
+            color = '#558b2f'; comment = 'Good';
+          } else if (numeric <= 1500) {
+            color = '#f9a825'; comment = 'Moderate';
+          } else {
+            color = '#b71c1c'; comment = 'Poor';
+          }
+          break;
+
+        case 'VOC Index':
+          if (numeric <= 100) {
+            color = '#2e7d32'; comment = 'Excellent';
+          } else if (numeric <= 200) {
+            color = '#558b2f'; comment = 'Good';
+          } else if (numeric <= 300) {
+            color = '#f9a825'; comment = 'Moderate';
+          } else {
+            color = '#b71c1c'; comment = 'Poor';
+          }
+          break;
+
+        case 'Temperature':
+          if (numeric < 18) {
+            color = '#1565c0'; comment = 'Too Cold';
+          } else if (numeric <= 24) {
+            color = '#2e7d32'; comment = 'Comfortable';
+          } else if (numeric <= 30) {
+            color = '#f9a825'; comment = 'Warm';
+          } else {
+            color = '#b71c1c'; comment = 'Hot';
+          }
+          break;
+
+        case 'Humidity':
+          if (numeric < 30) {
+            color = '#1565c0'; comment = 'Too Dry';
+          } else if (numeric <= 60) {
+            color = '#2e7d32'; comment = 'Comfortable';
+          } else {
+            color = '#b71c1c'; comment = 'Too Humid';
+          }
+          break;
+      }
+
+      return { color, comment };
+    }
+
     function fetchLatest() {
       fetch('https://script.google.com/macros/s/AKfycbzho2eCKvrp6oHmJ-3_w49UiLSPHM5Bt3LqeKHdKF-MDJ4XgHHqASEyGVtn4m8QF473/exec')
         .then(response => response.json())
@@ -196,9 +289,16 @@
           };
 
           for (let group in groups) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'group-wrapper';
+
+            const groupTitle = document.createElement('h3');
+            groupTitle.textContent = group.replace('group', 'Group ');
+            wrapper.appendChild(groupTitle);
+
             const groupDiv = document.createElement('div');
             groupDiv.className = 'group-section grid';
-            
+
             groups[group].forEach(key => {
               let matchKey = Object.keys(latest).find(k => 
                 k.replace(/\s*\(.*?\)/g, '').trim().toLowerCase() === key.toLowerCase() ||
@@ -226,13 +326,15 @@
                 if (unit) value += ' ' + unit;
               }
 
+              const { color, comment } = getColorAndComment(key, rawValue);
               const card = document.createElement('div');
               card.className = 'card';
-              card.innerHTML = `<h3>${label}</h3><p>${value}</p>`;
+              card.innerHTML = `<h3>${label}</h3><p style="color:${color};">${value}</p><small>${comment}</small>`;
               groupDiv.appendChild(card);
             });
 
-            container.appendChild(groupDiv);
+            wrapper.appendChild(groupDiv);
+            container.appendChild(wrapper);
           }
         })
         .catch(err => {
@@ -250,8 +352,8 @@
         dataSrc: json => json.data || json
       },
       columns: [
-        { data: row => moment.utc(row['Date']).local().format('YYYY-MM-DD') },
-        { data: row => moment.utc(row['Time']).local().format('HH:mm:ss') },
+  { data: row => moment.utc(row['Date']).isValid() ? moment.utc(row['Date']).local().format('YYYY-MM-DD') : row['Date'] },
+  { data: row => moment.utc(row['Time']).isValid() ? moment.utc(row['Time']).local().format('HH:mm:ss') : row['Time'] },
         { data: row => row['Sensor Read'] },
         { data: row => row['Standard PM1.0 (µg/m³)'] },
         { data: row => row['Standard PM2.5 (µg/m³)'] },
@@ -278,7 +380,6 @@
 
     setInterval(() => table.ajax.reload(null, false), 5000);
 
-    // Toggle Historical Section
     document.getElementById("toggleHistoricalBtn").addEventListener("click", function () {
       const section = document.getElementById("historicalSection");
       const isVisible = section.style.display !== "none";

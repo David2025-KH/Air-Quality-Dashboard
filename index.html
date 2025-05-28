@@ -195,81 +195,319 @@
       return strippedKey;
     }
 
-    function getColorAndComment(key, value) {
-      let numeric = parseFloat(value);
-      let color = '#111';
-      let comment = '';
+function getColorAndComment(key, value) {
+  let numeric = parseFloat(value);
+  let color = '#111';
+  let comment = '';
 
-      if (isNaN(numeric)) return { color, comment };
+  if (isNaN(numeric)) return { color, comment };
 
-      switch (key) {
-        case 'Standard PM2.5':
-        case 'Environment PM2.5':
-        case 'AIQ PM2.5':
-          if (numeric <= 12) {
-            color = '#2e7d32'; comment = 'Excellent';
-          } else if (numeric <= 35.4) {
-            color = '#558b2f'; comment = 'Good';
-          } else if (numeric <= 55.4) {
-            color = '#f9a825'; comment = 'Moderate';
-          } else if (numeric <= 150.4) {
-            color = '#ef6c00'; comment = 'Unhealthy';
-          } else {
-            color = '#b71c1c'; comment = 'Very Unhealthy';
-          }
-          break;
-
-        case 'CO₂':
-        case 'CO₂ (ppm)':
-          if (numeric <= 600) {
-            color = '#2e7d32'; comment = 'Excellent';
-          } else if (numeric <= 1000) {
-            color = '#558b2f'; comment = 'Good';
-          } else if (numeric <= 1500) {
-            color = '#f9a825'; comment = 'Moderate';
-          } else {
-            color = '#b71c1c'; comment = 'Poor';
-          }
-          break;
-
-        case 'VOC Index':
-          if (numeric <= 100) {
-            color = '#2e7d32'; comment = 'Excellent';
-          } else if (numeric <= 200) {
-            color = '#558b2f'; comment = 'Good';
-          } else if (numeric <= 300) {
-            color = '#f9a825'; comment = 'Moderate';
-          } else {
-            color = '#b71c1c'; comment = 'Poor';
-          }
-          break;
-
-        case 'Temperature':
-          if (numeric < 18) {
-            color = '#1565c0'; comment = 'Too Cold';
-          } else if (numeric <= 24) {
-            color = '#2e7d32'; comment = 'Comfortable';
-          } else if (numeric <= 30) {
-            color = '#f9a825'; comment = 'Warm';
-          } else {
-            color = '#b71c1c'; comment = 'Hot';
-          }
-          break;
-
-        case 'Humidity':
-          if (numeric < 30) {
-            color = '#1565c0'; comment = 'Too Dry';
-          } else if (numeric <= 60) {
-            color = '#2e7d32'; comment = 'Comfortable';
-          } else {
-            color = '#b71c1c'; comment = 'Too Humid';
-          }
-          break;
+  switch (key) {
+    case 'Standard PM1.0':
+      if (numeric <= 12) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 35.4) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 55.4) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 150.4) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 250.4) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 250.5) {
+        color = 'purple'; comment = 'Hazardous';
       }
+      break;
 
-      return { color, comment };
-    }
+    case 'Standard PM2.5':
+      if (numeric <= 12) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 35.4) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 55.4) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 150.4) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 250.4) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 250.5) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
 
+    case 'Standard PM10':
+      if (numeric <= 55) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 155) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 255) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 355) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 425) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 426) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Environment PM1.0':
+      if (numeric <= 12) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 35) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 55) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 150) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 250) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 251) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Environment PM2.5':
+      if (numeric <= 25) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 50) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 100) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 150) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 251) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 502) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Environment PM10':
+      if (numeric <= 54) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 154) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 254) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 354) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 424) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 425) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Particles 0.3µm':
+      if (numeric <= 500) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 1500) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 3000) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 6000) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 9999) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 10000) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Particles 0.5µm':
+      if (numeric <= 300) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 1000) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 2000) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 4000) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 6000) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 6001) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Particles 1.0µm':
+      if (numeric <= 200) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 800) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 1500) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 3000) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 5000) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 5001) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Particles 2.5µm':
+      if (numeric <= 100) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 300) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 700) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 1500) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 3000) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 3001) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Particles 5.0µm':
+      if (numeric <= 50) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 150) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 400) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 1000) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 2000) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 2001) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Particles 10µm':
+      if (numeric <= 19) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 60) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 400) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 500) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 800) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 801) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'AIQ PM2.5':
+      if (numeric <= 12) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 35.4) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 55.4) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 150.4) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 250.4) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 250.5) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'AIQ PM10':
+      if (numeric <= 54) {
+        color = 'blue'; comment = 'Excellent';
+      } else if (numeric <= 154) {
+        color = 'green'; comment = 'Good';
+      } else if (numeric <= 254) {
+        color = 'yellow'; comment = 'Moderate';
+      } else if (numeric <= 354) {
+        color = 'orange'; comment = 'Unhealthy';
+      } else if (numeric <= 424) {
+        color = 'red'; comment = 'Very Unhealthy';
+      } else if (numeric >= 425) {
+        color = 'purple'; comment = 'Hazardous';
+      }
+      break;
+
+    case 'Temperature':
+      if (numeric >= 15 && numeric <= 26) {
+        color = 'green'; comment = 'Comfotable';
+      } else if (numeric >= 5 && numeric <= 16) {
+        color = 'yellow'; comment = 'Cold';
+      } else if (numeric >= 26 && numeric <= 40) {
+        color = 'orange'; comment = 'Warm';
+      } else if (numeric >= 40) {
+        color = 'red'; comment = 'Hot';
+      } else if (numeric >= -50 && numeric <= 4) {
+        color = 'red'; comment = 'Very Cool';
+      }
+      break;
+
+    case 'Humidity':
+      if (numeric >= 28 && numeric <= 60) {
+        color = 'green'; comment = 'Comfotable';
+      } else if (numeric >= 61 && numeric <= 70) {
+        color = 'yellow'; comment = 'Humid';
+      } else if (numeric >= 71) {
+        color = 'red'; comment = 'Very Humid';
+      } else if (numeric <= 30) {
+        color = 'red'; comment = 'Dry';
+      }
+      break;
+
+    case 'Air Pressure':
+      if (numeric > 100499 && numeric < 102501) {
+        color = 'green'; comment = '';
+      } else if (numeric > 98999 && numeric < 100500) {
+        color = 'yellow'; comment = '';
+      } else if (numeric >102500 && numeric <103499) {
+        color = 'yellow'; comment = '';
+      } else if (numeric > 103499) {
+        color = 'red'; comment = '';
+      } else if (numeric <99001) {
+        color = 'red'; comment = '';
+	  } 
+      break;
+	  
+    case 'O₂':
+      if (numeric > 19.4 && numeric <23.6) {
+        color = 'green'; comment = 'Normal';
+      } else if (numeric > 19.6 && numeric < 9) {
+        color = 'yellow'; comment = 'Poor';
+      } else if (numeric < 8) {
+        color = 'red'; comment = 'Hazardous';
+	  } 
+      break;
+	  
+    case 'CO₂':
+      if (numeric <400) {
+        color = 'green'; comment = '';
+      } else if (numeric >999 && numeric <5001) {
+        color = 'yellow'; comment = '';
+      } else if (numeric >4999 && numeric <39999) {
+        color = 'orange'; comment = '';
+      } else if (numeric >39999) {
+        color = 'red'; comment = '';
+	  } 
+      break;
+	  
+    case 'VOC Index':
+      if (numeric > 0 && numeric < 100) {
+        color = 'green'; comment = '';
+      } else if (numeric > 101 && numeric < 200) {
+        color = 'yellow'; comment = '';
+      } else if (numeric >201 && numeric <400) {
+        color = 'orange'; comment = '';
+      } else if (numeric >401 && numeric <500) {
+        color = 'red'; comment = '';
+      } else if (numeric >500) {
+        color = 'red'; comment = '';
+	  } 
+      break;
+
+
+  }
+
+  return { color, comment };
+}
     function fetchLatest() {
       fetch('https://script.google.com/macros/s/AKfycbzho2eCKvrp6oHmJ-3_w49UiLSPHM5Bt3LqeKHdKF-MDJ4XgHHqASEyGVtn4m8QF473/exec')
         .then(response => response.json())

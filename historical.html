@@ -5,17 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Historical Indoor Air Quality Data</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 20px;
-      background-color: #f4f6f8;
+      background: linear-gradient(145deg, #e8f0f8, #ffffff);
+      color: #2c3e50;
     }
-    h1, h2 { text-align: center; color: #333; }
-    .section { margin-top: 40px; }
+    h1, h2 {
+      text-align: center;
+      color: #1a1a1a;
+    }
+    .section {
+      margin-top: 40px;
+    }
+
+    button {
+      display: block;
+      margin: 0 auto 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
 
     #historicalSection {
       background: #ffffff;
@@ -26,28 +52,39 @@
     }
 
     #historicalSection h2 {
-      color: #222;
+      color: #2c3e50;
       font-size: 24px;
       margin-bottom: 20px;
       text-align: center;
     }
 
     #airQuality_wrapper {
-      padding: 10px;
+      padding: 20px;
+      border-radius: 16px;
+      background: linear-gradient(to bottom right, #fdfdfd, #f0f4f8);
+      box-shadow: 0 3px 14px rgba(0,0,0,0.07);
+    }
+
+    table.dataTable {
+      width: 100%;
+      border-collapse: collapse;
       border-radius: 12px;
-      background: linear-gradient(to bottom right, #fdfdfd, #f1f3f6);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
     }
 
     table.dataTable thead {
-      background-color: #e6ecf3;
-      color: #333;
+      background-color: #d6e4f0;
+      color: #2c3e50;
       font-weight: 600;
       font-size: 14px;
     }
 
+    table.dataTable thead th {
+      padding: 12px 10px;
+    }
+
     table.dataTable tbody tr:hover {
-      background-color: #f0f4f9;
+      background-color: #eaf3fc;
       transition: background-color 0.3s ease;
     }
 
@@ -55,6 +92,7 @@
       padding: 10px;
       font-size: 14px;
       color: #333;
+      border-bottom: 1px solid #e0e6ed;
     }
 
     .dataTables_paginate,
@@ -63,7 +101,27 @@
     .dataTables_filter {
       font-size: 14px;
       color: #444;
-      margin-top: 10px;
+      margin-top: 15px;
+    }
+
+    .dataTables_paginate a {
+      background-color: #3498db;
+      color: white !important;
+      padding: 5px 10px;
+      margin: 0 2px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    .dataTables_paginate a.current {
+      background-color: #2980b9;
+    }
+
+    .dataTables_filter input {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 4px 8px;
+      margin-left: 5px;
     }
   </style>
 </head>
@@ -71,9 +129,7 @@
   <h1>Historical Indoor Air Quality Data</h1>
 
   <div class="section">
-    <button onclick="window.location.href='index.html'" style="display:block; margin: 0 auto 20px; padding:10px 20px; font-size:16px;">
-      Back to Latest Readings ⬅️
-    </button>
+    <button onclick="window.location.href='index.html'">Back to Latest Readings ⬅️</button>
   </div>
 
   <div id="historicalSection" class="section">
@@ -109,9 +165,17 @@
     </table>
   </div>
 
+  <!-- Core scripts -->
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+
+  <!-- DataTables export + colvis dependencies -->
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 
   <script>
     const table = new DataTable('#airQuality', {
@@ -119,6 +183,7 @@
         url: 'https://script.google.com/macros/s/AKfycbzho2eCKvrp6oHmJ-3_w49UiLSPHM5Bt3LqeKHdKF-MDJ4XgHHqASEyGVtn4m8QF473/exec',
         dataSrc: json => json.data || json
       },
+
       columns: [
         { data: row => moment.utc(row['Date']).isValid() ? moment.utc(row['Date']).local().format('YYYY-MM-DD') : row['Date'] },
         { data: row => moment.utc(row['Time']).isValid() ? moment.utc(row['Time']).local().format('HH:mm:ss') : row['Time'] },
@@ -143,9 +208,27 @@
         { data: row => row['O₂ (%)'] },
         { data: row => row['CO₂ (ppm)'] },
         { data: row => row['VOC Index'] }
+      ],
+      dom: 'Brtip',
+      buttons: [
+        {
+          extend: 'pdfHtml5',
+          orientation: 'landscape',
+          pageSize: 'A4',
+          exportOptions: {
+            columns: ':visible'
+          },
+          customize: function (doc) {
+            doc.defaultStyle.fontSize = 8;
+            doc.styles.tableHeader.fontSize = 9;
+            doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+          }
+        },
+        'colvis' // Add Column Visibility button
       ]
     });
 
+    // Auto refresh every 5 seconds
     setInterval(() => table.ajax.reload(null, false), 5000);
   </script>
 </body>

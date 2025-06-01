@@ -15,7 +15,7 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 20px;
-      background: linear-gradient(145deg, #e8f0f8, #ffffff);
+      background: #ffffff;
       color: #2c3e50;
     }
     h1, h2 {
@@ -61,8 +61,10 @@
     #airQuality_wrapper {
       padding: 20px;
       border-radius: 16px;
-      background: linear-gradient(to bottom right, #fdfdfd, #f0f4f8);
+      background: #ffffff;
       box-shadow: 0 3px 14px rgba(0,0,0,0.07);
+      overflow-x: auto;
+      max-height: 80vh;
     }
 
     table.dataTable {
@@ -91,7 +93,7 @@
     table.dataTable tbody td {
       padding: 10px;
       font-size: 14px;
-      color: #333;
+      color: #333; /* Styled values */
       border-bottom: 1px solid #e0e6ed;
     }
 
@@ -122,6 +124,16 @@
       border-radius: 6px;
       padding: 4px 8px;
       margin-left: 5px;
+    }
+
+    @media (max-width: 768px) {
+      #airQuality_wrapper {
+        max-height: 70vh;
+      }
+
+      table.dataTable {
+        min-width: 900px;
+      }
     }
   </style>
 </head>
@@ -165,12 +177,10 @@
     </table>
   </div>
 
-  <!-- Core scripts -->
+  <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
   <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
-
-  <!-- DataTables export + colvis dependencies -->
   <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
@@ -179,11 +189,11 @@
 
   <script>
     const table = new DataTable('#airQuality', {
+      responsive: true,
       ajax: {
         url: 'https://script.google.com/macros/s/AKfycbzho2eCKvrp6oHmJ-3_w49UiLSPHM5Bt3LqeKHdKF-MDJ4XgHHqASEyGVtn4m8QF473/exec',
         dataSrc: json => json.data || json
       },
-
       columns: [
         { data: row => moment.utc(row['Date']).isValid() ? moment.utc(row['Date']).local().format('YYYY-MM-DD') : row['Date'] },
         { data: row => moment.utc(row['Time']).isValid() ? moment.utc(row['Time']).local().format('HH:mm:ss') : row['Time'] },
@@ -224,7 +234,7 @@
             doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
           }
         },
-        'colvis' // Add Column Visibility button
+        'colvis'
       ]
     });
 
